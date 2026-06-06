@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Figurinhas Pimpões</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #f8fafc;
+      color: #0f172a;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 13px;
+    }
+
+    /* ---- HEADER ---- */
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0.45rem 0.75rem 0.4rem;
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.3rem;
+    }
+    h1 {
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: #1d4ed8;
+    }
+    #progress-text {
+      margin-left: auto;
+      font-size: 0.6rem;
+      color: #64748b;
+      white-space: nowrap;
+    }
+    .progress-track {
+      background: #e2e8f0;
+      border-radius: 9999px;
+      height: 5px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 50%, #16a34a 100%);
+      background-size: 200% 100%;
+      transition: width 0.4s ease, background-position 0.5s ease;
+    }
+
+    /* ---- CONTROLS ---- */
+    .controls {
+      padding: 0.35rem 0.75rem;
+      display: flex;
+      gap: 0.4rem;
+      border-bottom: 1px solid #e2e8f0;
+      background: #fff;
+    }
+    .btn {
+      padding: 0.22rem 0.6rem;
+      border-radius: 0.35rem;
+      font-size: 0.62rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #334155;
+      transition: background 0.12s;
+    }
+    .btn:active { background: #e2e8f0; }
+    .btn-danger { color: #dc2626; border-color: #fca5a5; }
+    .btn-danger:active { background: #fef2f2; }
+
+    /* ---- MAIN ---- */
+    main {
+      padding: 0.5rem 0.75rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* ---- CONFEDERATION ---- */
+    .conf-label {
+      font-size: 0.55rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: #2563eb;
+      border-left: 2px solid #2563eb;
+      padding-left: 0.35rem;
+      margin-bottom: 0.3rem;
+      text-transform: uppercase;
+    }
+
+    /* ---- ROW (country line like PDF) ---- */
+    .country-row {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0;
+      border-bottom: 1px solid #f1f5f9;
+      min-height: 1.9rem;
+    }
+    .country-row:last-child { border-bottom: none; }
+    .country-row.complete { opacity: 0.5; }
+    .country-row.empty-row { opacity: 0.35; }
+
+    .row-code {
+      font-weight: 800;
+      font-size: 0.68rem;
+      color: #1e293b;
+      width: 2.4rem;
+      flex-shrink: 0;
+    }
+    .row-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.18rem;
+      align-items: center;
+      flex: 1;
+    }
+    .row-badge {
+      font-size: 0.58rem;
+      color: #16a34a;
+      font-weight: 700;
+    }
+    .row-empty {
+      font-size: 0.58rem;
+      color: #94a3b8;
+    }
+
+    /* ---- CHIPS ---- */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.45rem;
+      height: 1.45rem;
+      border-radius: 0.25rem;
+      font-size: 0.6rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      user-select: none;
+      transition: transform 0.1s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .chip:active { transform: scale(0.88); }
+    .chip.missing { background: #3b82f6; color: #fff; }
+    .chip.found   { background: #16a34a; color: #fff; }
+    .chip.found.hide-found { display: none; }
+
+    /* ---- TOAST ---- */
+    #toast {
+      position: fixed;
+      bottom: 1.2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(3rem);
+      background: #16a34a;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.7rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 9999px;
+      pointer-events: none;
+      opacity: 0;
+      transition: transform 0.22s ease, opacity 0.22s ease;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    #toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <span>⚽</span>
+      <h1>Figurinhas Pimpões</h1>
+      <span id="progress-text"></span>
+    </div>
+    <div class="progress-track">
+      <div id="progress-fill" class="progress-fill" style="width:0%"></div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <button id="btn-toggle" class="btn" onclick="toggleShowFound()">Mostrar encontradas</button>
+    <button class="btn btn-danger" onclick="resetAll()">Resetar tudo</button>
+  </div>
+
+  <main id="app"></main>
+
+  <div id="toast"></div>
+
+  <script>
+    const COUNTRY_NAMES = {
+      ALG:"Argélia", ARG:"Argentina", AUS:"Austrália", AUT:"Áustria",
+      BEL:"Bélgica", BIH:"Bósnia", BRA:"Brasil", CAN:"Canadá",
+      CIV:"C. Marfim", COD:"R.D. Congo", COL:"Colômbia",
+      KOR:"Coreia Sul", CRO:"Croácia", CPV:"Cabo Verde", CUW:"Curaçao",
+      CZE:"Rep. Tcheca", ECU:"Equador", EGY:"Egito", ENG:"Inglaterra",
+      ESP:"Espanha", FRA:"França", GER:"Alemanha", GHA:"Gana",
+      HAI:"Haiti", IRN:"Irã", IRQ:"Iraque", JOR:"Jordânia",
+      JPN:"Japão", QAT:"Catar", MAR:"Marrocos", MEX:"México",
+      NED:"Holanda", KSA:"Arábia Saud.", NZL:"Nova Zelândia",
+      PAN:"Panamá", PAR:"Paraguai", POR:"Portugal", RSA:"África do Sul",
+      SCO:"Escócia", SEM:"Serra Leoa", SUI:"Suíça", SWE:"Suécia",
+      TUN:"Tunísia", TUR:"Turquia", URU:"Uruguai", USA:"EUA",
+      UZB:"Uzbequistão", FWC:"Especial Copa",
+    };
+
+    const STICKER_DATA = {
+      ALG:[19], ARG:[1,8,12,17,20], AUS:[2,5,17], AUT:[7,9],
+      BEL:[16], BIH:[3], BRA:[10], CAN:[5,18],
+      CIV:[3,15,19], COD:[6,7,14,17], COL:[3,4,8,17], KOR:[8,19],
+      CRO:[1,4,12], CPV:[1,9], CUW:[5,16], CZE:[17],
+      ECU:[6,9,10,19,20], EGY:[7,12,15], ENG:[2,3,11,20], ESP:[2,6,10,14],
+      FRA:[11,15,19], GER:[2,4,5,7,8,11,16], GHA:[3,5], HAI:[7,13],
+      IRN:[9,11,16,17], IRQ:[2,9,14], JOR:[1,13,17], JPN:[4],
+      QAT:[1,2,4,7,15,18,19], MAR:[1,13], MEX:[4,7,11], NED:[7,11,16,18],
+      KSA:[4,5,20], NZL:[2,6,19], PAN:[2,4,12], PAR:[11,15],
+      POR:[1,16], RSA:[], SCO:[1,9,16], SEM:[1],
+      SUI:[18,19], SWE:[10,11,15], TUN:[3,7], TUR:[3,4,9,13],
+      URU:[2], USA:[5,7], UZB:[6,7,9,10,11,12,15], FWC:[6],
+    };
+
+    const CONFEDERATIONS = [
+      { label:"CONMEBOL", codes:["ARG","BRA","COL","ECU","PAR","URU"] },
+      { label:"CONCACAF", codes:["CAN","CUW","HAI","MEX","PAN","USA"] },
+      { label:"UEFA",     codes:["AUT","BEL","BIH","CRO","CZE","ENG","ESP","FRA","GER","NED","POR","SCO","SUI","SWE","TUR"] },
+      { label:"CAF",      codes:["ALG","CIV","COD","CPV","EGY","GHA","MAR","RSA","SEM","TUN"] },
+      { label:"AFC",      codes:["IRN","IRQ","JOR","JPN","KOR","KSA","QAT","UZB"] },
+      { label:"OFC",      codes:["AUS","NZL"] },
+      { label:"ESPECIAL", codes:["FWC"] },
+    ];
+
+    // ── STATE ────────────────────────────────────────────────────────────────────
+    const KEY = "figurinhas_pimpoes_v1";
+    let state = { found:{}, showFound:false };
+
+    function loadState() {
+      try { const r = localStorage.getItem(KEY); if (r) state = JSON.parse(r); } catch(_) {}
+    }
+    function saveState() { localStorage.setItem(KEY, JSON.stringify(state)); }
+    function isFound(code, num) { return (state.found[code]||[]).includes(num); }
+    function markFound(code, num) {
+      if (!state.found[code]) state.found[code] = [];
+      if (!state.found[code].includes(num)) state.found[code].push(num);
+    }
+    function unmarkFound(code, num) {
+      if (!state.found[code]) return;
+      state.found[code] = state.found[code].filter(n => n !== num);
+      if (!state.found[code].length) delete state.found[code];
+    }
+
+    // ── PROGRESS ─────────────────────────────────────────────────────────────────
+    function updateProgress() {
+      const total = Object.values(STICKER_DATA).reduce((s,a) => s+a.length, 0);
+      const found = Object.entries(state.found).reduce((s,[code,arr]) => {
+        return s + arr.filter(n => (STICKER_DATA[code]||[]).includes(n)).length;
+      }, 0);
+      const pct = total > 0 ? Math.round(found/total*100) : 0;
+      document.getElementById("progress-text").textContent = `${found}/${total} (${pct}%)`;
+      const fill = document.getElementById("progress-fill");
+      fill.style.width = pct + "%";
+      fill.style.backgroundPosition = (100-pct) + "% 0";
+    }
+
+    // ── RENDER ───────────────────────────────────────────────────────────────────
+    function renderAll() {
+      const app = document.getElementById("app");
+      app.innerHTML = "";
+      for (const conf of CONFEDERATIONS) {
+        const section = document.createElement("section");
+        const label = document.createElement("div");
+        label.className = "conf-label";
+        label.textContent = conf.label;
+        section.appendChild(label);
+        for (const code of conf.codes) section.appendChild(renderRow(code));
+        app.appendChild(section);
+      }
+      updateProgress();
+    }
+
+    function renderRow(code) {
+      const missing = STICKER_DATA[code] || [];
+      const foundNums = (state.found[code]||[]).filter(n => missing.includes(n));
+      const allFound = missing.length > 0 && foundNums.length === missing.length;
+      const isEmpty = missing.length === 0;
+
+      const row = document.createElement("div");
+      row.className = "country-row" + (allFound ? " complete" : "") + (isEmpty ? " empty-row" : "");
+      row.dataset.code = code;
+
+      const codeEl = document.createElement("span");
+      codeEl.className = "row-code";
+      codeEl.textContent = code;
+      row.appendChild(codeEl);
+
+      const chips = document.createElement("div");
+      chips.className = "row-chips";
+      chips.id = `chips-${code}`;
+
+      if (isEmpty) {
+        const b = document.createElement("span");
+        b.className = "row-empty";
+        b.textContent = "sem falta";
+        chips.appendChild(b);
+      } else if (allFound && !state.showFound) {
+        const b = document.createElement("span");
+        b.className = "row-badge";
+        b.textContent = "Completa ✓";
+        chips.appendChild(b);
+      } else {
+        for (const num of missing) chips.appendChild(makeChip(code, num));
+      }
+
+      row.appendChild(chips);
+      return row;
+    }
+
+    function makeChip(code, num) {
+      const found = isFound(code, num);
+      const btn = document.createElement("button");
+      btn.className = "chip " + (found ? "found" : "missing") + (!state.showFound && found ? " hide-found" : "");
+      btn.textContent = num;
+      btn.dataset.country = code;
+      btn.dataset.num = num;
+      btn.addEventListener("click", onChipClick);
+      return btn;
+    }
+
+    // ── EVENTS ───────────────────────────────────────────────────────────────────
+    function onChipClick(e) {
+      const btn = e.currentTarget;
+      const code = btn.dataset.country;
+      const num = parseInt(btn.dataset.num);
+      const missing = STICKER_DATA[code] || [];
+
+      if (isFound(code, num)) {
+        unmarkFound(code, num);
+        btn.classList.replace("found","missing");
+        btn.classList.remove("hide-found");
+      } else {
+        markFound(code, num);
+        btn.classList.replace("missing","found");
+        if (!state.showFound) btn.classList.add("hide-found");
+        showToast(`${code} #${num} ✓`);
+      }
+
+      saveState();
+      updateRow(code);
+      updateProgress();
+    }
+
+    function updateRow(code) {
+      const missing = STICKER_DATA[code] || [];
+      const foundNums = (state.found[code]||[]).filter(n => missing.includes(n));
+      const allFound = missing.length > 0 && foundNums.length === missing.length;
+
+      const row = document.querySelector(`.country-row[data-code="${code}"]`);
+      if (!row) return;
+      row.classList.toggle("complete", allFound);
+
+      const chips = document.getElementById(`chips-${code}`);
+      if (!chips) return;
+
+      if (allFound && !state.showFound) {
+        chips.innerHTML = `<span class="row-badge">Completa ✓</span>`;
+      } else if (!allFound && chips.querySelector(".row-badge")) {
+        chips.innerHTML = "";
+        for (const num of missing) chips.appendChild(makeChip(code, num));
+      }
+    }
+
+    function toggleShowFound() {
+      state.showFound = !state.showFound;
+      saveState();
+      document.getElementById("btn-toggle").textContent =
+        state.showFound ? "Ocultar encontradas" : "Mostrar encontradas";
+      renderAll();
+    }
+
+    function resetAll() {
+      if (!confirm("Apagar todo o progresso?")) return;
+      state = { found:{}, showFound:false };
+      saveState();
+      document.getElementById("btn-toggle").textContent = "Mostrar encontradas";
+      renderAll();
+    }
+
+    // ── TOAST ────────────────────────────────────────────────────────────────────
+    let toastTimer;
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("visible");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove("visible"), 1800);
+    }
+
+    // ── INIT ─────────────────────────────────────────────────────────────────────
+    document.addEventListener("DOMContentLoaded", () => {
+      loadState();
+      document.getElementById("btn-toggle").textContent =
+        state.showFound ? "Ocultar encontradas" : "Mostrar encontradas";
+      renderAll();
+    });
+  </script>
+</body>
+</html>
