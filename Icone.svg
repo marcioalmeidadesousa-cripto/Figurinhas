@@ -1,0 +1,110 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0B7A3B"/>
+      <stop offset="55%" stop-color="#0E8C44"/>
+      <stop offset="100%" stop-color="#075C2C"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#FFE57A" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="#FFD23F" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#FFD23F" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F2F4F0"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE187"/>
+      <stop offset="50%" stop-color="#FFC53D"/>
+      <stop offset="100%" stop-color="#E89A1C"/>
+    </linearGradient>
+    <linearGradient id="banner" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#13325B"/>
+      <stop offset="100%" stop-color="#0D2139"/>
+    </linearGradient>
+    <radialGradient id="ballGlow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E6EAE3"/>
+    </radialGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="22" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+    <filter id="tinyShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.22"/>
+    </filter>
+    <clipPath id="round">
+      <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224"/>
+    </clipPath>
+  </defs>
+
+  <!-- Fundo -->
+  <g clip-path="url(#round)">
+    <rect width="1024" height="1024" fill="url(#bg)"/>
+    <rect width="1024" height="1024" fill="url(#glow)"/>
+
+    <!-- Confete / brilhos verde-amarelo -->
+    <g opacity="0.9">
+      <circle cx="150" cy="150" r="11" fill="#FFD23F"/>
+      <rect x="858" y="120" width="22" height="22" rx="5" fill="#FFD23F" transform="rotate(20 869 131)"/>
+      <circle cx="936" cy="300" r="9" fill="#FFFFFF" opacity="0.8"/>
+      <rect x="118" y="380" width="18" height="18" rx="4" fill="#FFFFFF" opacity="0.7" transform="rotate(35 127 389)"/>
+      <circle cx="884" cy="770" r="10" fill="#FFD23F"/>
+      <rect x="128" y="800" width="20" height="20" rx="5" fill="#FFD23F" transform="rotate(-15 138 810)"/>
+      <circle cx="505" cy="86" r="8" fill="#FFFFFF" opacity="0.7"/>
+      <path d="M820 470 l8 16 18 2 -13 13 3 18 -16 -9 -16 9 3 -18 -13 -13 18 -2z" fill="#FFD23F" opacity="0.85"/>
+      <path d="M190 600 l6 12 13 2 -10 9 2 13 -11 -6 -11 6 2 -13 -10 -9 13 -2z" fill="#FFFFFF" opacity="0.5"/>
+    </g>
+
+    <!-- Linhas de campo -->
+    <g opacity="0.10" stroke="#FFFFFF" stroke-width="6" fill="none">
+      <circle cx="512" cy="500" r="300"/>
+      <line x1="512" y1="200" x2="512" y2="800"/>
+    </g>
+  </g>
+
+  <!-- Figurinha (card) inclinada -->
+  <g transform="rotate(-7 512 512)" filter="url(#softShadow)">
+    <rect x="288" y="232" width="448" height="560" rx="36" fill="url(#card)" stroke="#0D2139" stroke-width="4"/>
+    <rect x="312" y="256" width="400" height="512" rx="22" fill="none" stroke="#0D2139" stroke-width="4" stroke-dasharray="2 18" stroke-linecap="round"/>
+
+    <!-- Topo dourado -->
+    <path d="M288 268 a36 36 0 0 1 36 -36 h376 a36 36 0 0 1 36 36 v48 h-448 z" fill="url(#gold)"/>
+    <text x="512" y="299" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="32" font-weight="900" fill="#0D2139" letter-spacing="3">PIMPÕES</text>
+
+    <!-- Estrelas (edição especial) -->
+    <g fill="#FFC53D">
+      <path d="M380 360 l7 15 16 2 -12 11 3 16 -14 -8 -14 8 3 -16 -12 -11 16 -2z"/>
+      <path d="M512 348 l8 17 18 2 -13 12 3 18 -16 -9 -16 9 3 -18 -13 -12 18 -2z"/>
+      <path d="M632 360 l7 15 16 2 -12 11 3 16 -14 -8 -14 8 3 -16 -12 -11 16 -2z"/>
+    </g>
+
+    <!-- Bola de futebol grande -->
+    <g transform="translate(512 510)" filter="url(#tinyShadow)">
+      <circle r="112" fill="url(#ballGlow)" stroke="#0D2139" stroke-width="7"/>
+      <polygon points="0,-44 42,-14 26,38 -26,38 -42,-14" fill="#0D2139"/>
+      <g fill="none" stroke="#0D2139" stroke-width="7" stroke-linecap="round">
+        <line x1="0" y1="-44" x2="0" y2="-100"/>
+        <line x1="42" y1="-14" x2="92" y2="-46"/>
+        <line x1="26" y1="38" x2="64" y2="84"/>
+        <line x1="-26" y1="38" x2="-64" y2="84"/>
+        <line x1="-42" y1="-14" x2="-92" y2="-46"/>
+      </g>
+      <g fill="#0D2139">
+        <path d="M0 -100 l14 22 -28 0z" opacity="0.9"/>
+      </g>
+    </g>
+
+    <!-- Faixa VAMOS BRASIL -->
+    <g transform="translate(0 6)">
+      <rect x="252" y="660" width="520" height="116" rx="22" fill="url(#banner)" stroke="#FFC53D" stroke-width="6" filter="url(#tinyShadow)"/>
+      <text x="512" y="708" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="40" font-weight="900" fill="#FFD23F" letter-spacing="2">VAMOS</text>
+      <text x="512" y="754" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="46" font-weight="900" fill="#FFFFFF" letter-spacing="3">BRASIL!</text>
+    </g>
+  </g>
+
+  <!-- Rodapé com nome do app -->
+  <g transform="rotate(-7 512 512)">
+    <text x="512" y="838" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="800" fill="#FFFFFF" letter-spacing="4" opacity="0.95">FIGURINHAS PIMPÕES</text>
+  </g>
+</svg>
