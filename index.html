@@ -49,10 +49,12 @@
       line-height: 1.1;
     }
     .header-subtitle {
-      font-size: 0.58rem;
-      color: rgba(255,255,255,0.65);
-      margin-top: 0.1rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.85);
+      margin-top: 0.15rem;
     }
+    .print-title { display: none; }
     .header-pct {
       font-size: 2rem;
       font-weight: 900;
@@ -242,8 +244,9 @@
       body { background: white !important; font-size: 10px; }
       header { position: static !important; background: #13325B !important; padding: 0.5rem 0.7rem !important; }
       .header-pct { font-size: 1.3rem !important; }
-      h1 { font-size: 0.8rem !important; }
-      .header-subtitle { font-size: 0.5rem !important; }
+      h1 { display: none !important; }
+      .print-title { display: block !important; font-size: 0.85rem !important; font-weight: 900; color: white; line-height: 1.1; }
+      .header-subtitle { font-size: 0.58rem !important; font-weight: 600 !important; }
       .progress-track { height: 4px !important; }
 
       .controls { display: none !important; }
@@ -279,7 +282,8 @@
       <img class="header-icon" src="Icone.svg" alt="ícone" />
       <div class="header-title-block">
         <h1>Figurinhas Pimpões</h1>
-        <div class="header-subtitle" id="progress-text">0 de 0 figurinhas coladas</div>
+        <div class="print-title">Figurinhas Gustavo e Gabriel</div>
+        <div class="header-subtitle" id="progress-text">0 de 980 figurinhas coladas</div>
       </div>
       <div class="header-pct" id="progress-pct">0%</div>
     </div>
@@ -345,13 +349,19 @@
     }
 
     // ── PROGRESS ─────────────────────────────────────────────────────────────────
+    const TOTAL_ALBUM   = 980;
+    const TOTAL_MISSING = Object.values(STICKER_DATA).reduce((s,a) => s+a.length, 0);
+    const JA_TEM        = TOTAL_ALBUM - TOTAL_MISSING; // já possuídas antes de começar
+
     function updateProgress() {
-      const total = Object.values(STICKER_DATA).reduce((s,a) => s+a.length, 0);
-      const found = Object.entries(state.found).reduce((s,[code,arr]) =>
+      const foundCount = Object.entries(state.found).reduce((s,[code,arr]) =>
         s + arr.filter(n => (STICKER_DATA[code]||[]).includes(n)).length, 0);
-      const pct = total > 0 ? Math.round(found/total*100) : 0;
-      document.getElementById("progress-text").textContent = `${found} de ${total} figurinhas coladas`;
-      document.getElementById("progress-pct").textContent  = pct + "%";
+      const coladas = JA_TEM + foundCount;
+      const faltando = TOTAL_MISSING - foundCount;
+      const pct = Math.round(coladas / TOTAL_ALBUM * 100);
+      document.getElementById("progress-text").textContent =
+        `${faltando} faltando — ${coladas} de ${TOTAL_ALBUM} coladas`;
+      document.getElementById("progress-pct").textContent = pct + "%";
       const fill = document.getElementById("progress-fill");
       fill.style.width = pct + "%";
     }
