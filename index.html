@@ -152,9 +152,33 @@
       -webkit-tap-highlight-color: transparent;
     }
     .chip:active { transform: scale(0.88); }
-    .chip.missing { background: #3b82f6; color: #fff; }
-    .chip.found   { background: #16a34a; color: #fff; }
+    .chip.missing  { background: #3b82f6; color: #fff; }
+    .chip.pending  { background: #f59e0b; color: #fff; box-shadow: 0 0 0 2px #fbbf24; }
+    .chip.found    { background: #16a34a; color: #fff; }
     .chip.found.hide-found { display: none; }
+
+    /* ---- CONFIRM BAR ---- */
+    .confirm-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding-top: 0.2rem;
+      flex-basis: 100%;
+    }
+    .confirm-bar span {
+      font-size: 0.58rem;
+      color: #64748b;
+    }
+    .cbtn {
+      padding: 0.18rem 0.55rem;
+      border-radius: 0.3rem;
+      font-size: 0.6rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+    .cbtn.save   { background: #16a34a; color: #fff; }
+    .cbtn.cancel { background: #e2e8f0; color: #475569; }
 
     /* ---- TOAST ---- */
     #toast {
@@ -337,28 +361,90 @@
       return btn;
     }
 
-    // ── EVENTS ───────────────────────────────────────────────────────────────────
-    function onChipClick(e) {
-      const btn = e.currentTarget;
-      const code = btn.dataset.country;
-      const num = parseInt(btn.dataset.num);
-      const missing = STICKER_DATA[code] || [];
+    // ── PENDING CONFIRMATION ─────────────────────────────────────────────────────
+    let pending = null;
 
-      if (isFound(code, num)) {
-        unmarkFound(code, num);
-        btn.classList.replace("found","missing");
-        btn.classList.remove("hide-found");
-      } else {
-        markFound(code, num);
-        btn.classList.replace("missing","found");
-        if (!state.showFound) btn.classList.add("hide-found");
-        showToast(`${code} #${num} ✓`);
-      }
+    function clearPending() {
+      if (!pending) return;
+      pending.chipEl.classList.remove("pending");
+      const bar = document.getElementById("confirm-bar");
+      if (bar) bar.remove();
+      pending = null;
+    }
 
+    function confirmPending() {
+      if (!pending) return;
+      const { code, num, chipEl } = pending;
+      clearPending();
+      markFound(code, num);
+      chipEl.classList.replace("missing", "found");
+      if (!state.showFound) chipEl.classList.add("hide-found");
       saveState();
       updateRow(code);
       updateProgress();
+      showToast(`${code} #${num} ✓`);
     }
+
+    function showConfirmBar(code, num, chipEl) {
+      const bar = document.createElement("div");
+      bar.className = "confirm-bar";
+      bar.id = "confirm-bar";
+
+      const label = document.createElement("span");
+      label.textContent = `Marcar #${num}?`;
+
+      const btnSave = document.createElement("button");
+      btnSave.className = "cbtn save";
+      btnSave.textContent = "✓ Salvar";
+      btnSave.addEventListener("click", e => { e.stopPropagation(); confirmPending(); });
+
+      const btnCancel = document.createElement("button");
+      btnCancel.className = "cbtn cancel";
+      btnCancel.textContent = "✗";
+      btnCancel.addEventListener("click", e => { e.stopPropagation(); clearPending(); });
+
+      bar.appendChild(label);
+      bar.appendChild(btnSave);
+      bar.appendChild(btnCancel);
+
+      const row = document.getElementById(`chips-${code}`);
+      if (row) row.appendChild(bar);
+    }
+
+    // ── EVENTS ───────────────────────────────────────────────────────────────────
+    function onChipClick(e) {
+      e.stopPropagation();
+      const btn = e.currentTarget;
+      const code = btn.dataset.country;
+      const num = parseInt(btn.dataset.num);
+
+      // Clique em chip já encontrado (quando showFound está ativo) → desmarca direto
+      if (isFound(code, num)) {
+        clearPending();
+        unmarkFound(code, num);
+        btn.classList.replace("found","missing");
+        btn.classList.remove("hide-found");
+        saveState();
+        updateRow(code);
+        updateProgress();
+        return;
+      }
+
+      // Se clicar no mesmo chip pendente → confirma
+      if (pending && pending.code === code && pending.num === num) {
+        confirmPending();
+        return;
+      }
+
+      // Limpa pending anterior e abre novo
+      clearPending();
+      pending = { code, num, chipEl: btn };
+      btn.classList.add("pending");
+      showConfirmBar(code, num, btn);
+    }
+
+    // Toque fora cancela o pending
+    document.addEventListener("click", () => clearPending());
 
     function updateRow(code) {
       const missing = STICKER_DATA[code] || [];
