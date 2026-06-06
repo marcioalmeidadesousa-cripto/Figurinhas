@@ -228,21 +228,40 @@
     }
     #toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* ---- EXPORT OVERLAY ---- */
-    #export-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-    }
-    #export-overlay.visible { display: flex; }
-    #export-overlay span {
-      color: white;
-      font-weight: 700;
-      font-size: 0.9rem;
+    /* ---- PRINT / PDF ---- */
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+      body { background: white !important; font-size: 10px; }
+      header { position: static !important; background: #13325B !important; padding: 0.5rem 0.7rem !important; }
+      .header-pct { font-size: 1.3rem !important; }
+      h1 { font-size: 0.8rem !important; }
+      .header-subtitle { font-size: 0.5rem !important; }
+      .progress-track { height: 4px !important; }
+
+      .controls { display: none !important; }
+      #toast, #export-overlay { display: none !important; }
+      .confirm-bar { display: none !important; }
+
+      main { padding: 0.3rem 0.5rem 0.5rem !important; gap: 0.4rem !important; }
+
+      .conf-section { box-shadow: none !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; }
+      .conf-label { padding: 0.25rem 0.5rem !important; }
+      .conf-name { font-size: 0.52rem !important; }
+      .conf-count { font-size: 0.5rem !important; }
+
+      .country-row { padding: 0.18rem 0.5rem !important; min-height: 1.3rem !important; border-bottom-color: #f1f5f9 !important; }
+      .row-code { font-size: 0.58rem !important; width: 2rem !important; }
+
+      /* Mostra só as faltando */
+      .chip.found { display: none !important; }
+      .chip.pending { background: #bfdbfe !important; color: #1d4ed8 !important; box-shadow: none !important; }
+      .chip { min-width: 1.25rem !important; height: 1.25rem !important; font-size: 0.52rem !important; }
+
+      /* Se todas encontradas, mostra linha apagada */
+      .country-row.complete .row-chips::after { content: "coladas ✓"; font-size: 0.52rem; color: #16a34a; font-weight: 700; }
+      .row-badge { font-size: 0.52rem !important; }
+      .row-empty { font-size: 0.52rem !important; }
     }
   </style>
 </head>
@@ -265,15 +284,13 @@
   <div class="controls">
     <button id="btn-toggle" class="btn" onclick="toggleShowFound()">👁 Mostrar encontradas</button>
     <button class="btn btn-danger" onclick="resetAll()">↺ Resetar tudo</button>
-    <button class="btn btn-export" onclick="exportPage()">📷 Exportar</button>
+    <button class="btn btn-export" onclick="exportPage()">📄 Exportar PDF</button>
   </div>
 
   <main id="app"></main>
 
   <div id="toast"></div>
-  <div id="export-overlay"><span>Gerando imagem...</span></div>
 
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script>
     // ── DATA ─────────────────────────────────────────────────────────────────────
     const STICKER_DATA = {
@@ -533,38 +550,10 @@
       renderAll();
     }
 
-    // ── EXPORT ───────────────────────────────────────────────────────────────────
+    // ── EXPORT PDF ───────────────────────────────────────────────────────────────
     function exportPage() {
       clearPending();
-      const overlay = document.getElementById("export-overlay");
-      overlay.classList.add("visible");
-
-      // Expande a página para capturar tudo
-      const prevOverflow = document.body.style.overflow;
-      document.body.style.overflow = "visible";
-
-      html2canvas(document.body, {
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#f5f0e8",
-        scrollX: 0,
-        scrollY: 0,
-        width: document.body.scrollWidth,
-        height: document.body.scrollHeight,
-        windowWidth: document.body.scrollWidth,
-        windowHeight: document.body.scrollHeight,
-      }).then(canvas => {
-        document.body.style.overflow = prevOverflow;
-        overlay.classList.remove("visible");
-        const link = document.createElement("a");
-        link.download = "figurinhas-pimpoes.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      }).catch(() => {
-        document.body.style.overflow = prevOverflow;
-        overlay.classList.remove("visible");
-        alert("Erro ao gerar imagem.");
-      });
+      window.print();
     }
 
     // ── TOAST ────────────────────────────────────────────────────────────────────
