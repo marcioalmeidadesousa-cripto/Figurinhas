@@ -217,6 +217,54 @@
     .cbtn.save   { background: #16a34a; color: #fff; }
     .cbtn.cancel { background: #e2e8f0; color: #475569; }
 
+    /* ---- MODAL RESET ---- */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.visible { display: flex; }
+    .modal-box {
+      background: white;
+      border-radius: 0.85rem;
+      padding: 1.25rem 1rem 1rem;
+      width: 100%;
+      max-width: 300px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+      text-align: center;
+    }
+    .modal-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+    .modal-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 0.3rem;
+    }
+    .modal-sub {
+      font-size: 0.65rem;
+      color: #64748b;
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+    .modal-btns { display: flex; gap: 0.5rem; }
+    .modal-btn {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+    .modal-btn.cancel { background: #f1f5f9; color: #475569; }
+    .modal-btn.confirm { background: #dc2626; color: white; }
+    .modal-btn.confirm2 { background: #7f1d1d; color: white; }
+
     /* ---- TOAST ---- */
     #toast {
       position: fixed;
@@ -301,6 +349,32 @@
   <main id="app"></main>
 
   <div id="toast"></div>
+
+  <!-- MODAL RESET ETAPA 1 -->
+  <div class="modal-overlay" id="modal1">
+    <div class="modal-box">
+      <div class="modal-icon">⚠️</div>
+      <div class="modal-title">Resetar progresso?</div>
+      <div class="modal-sub">Todo o progresso marcado será apagado. Esta ação não pode ser desfeita.</div>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeModal1()">Cancelar</button>
+        <button class="modal-btn confirm" onclick="goModal2()">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL RESET ETAPA 2 -->
+  <div class="modal-overlay" id="modal2">
+    <div class="modal-box">
+      <div class="modal-icon">🗑️</div>
+      <div class="modal-title">Tem absoluta certeza?</div>
+      <div class="modal-sub">Isso vai apagar <strong>todas</strong> as figurinhas marcadas de Gustavo e Gabriel.</div>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeModal2()">Não, voltar</button>
+        <button class="modal-btn confirm2" onclick="confirmReset()">Sim, apagar tudo</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // ── DATA ─────────────────────────────────────────────────────────────────────
@@ -559,18 +633,26 @@
       renderAll();
     }
 
-    function resetAll() {
-      if (!confirm("Apagar todo o progresso?")) return;
+    function resetAll()   { document.getElementById("modal1").classList.add("visible"); }
+    function closeModal1(){ document.getElementById("modal1").classList.remove("visible"); }
+    function goModal2()   { closeModal1(); document.getElementById("modal2").classList.add("visible"); }
+    function closeModal2(){ document.getElementById("modal2").classList.remove("visible"); }
+    function confirmReset() {
+      closeModal2();
       state = { found:{}, showFound:false };
       saveState();
       document.getElementById("btn-toggle").textContent = "👁 Mostrar encontradas";
       renderAll();
+      showToast("Progresso apagado.");
     }
 
     // ── EXPORT PDF ───────────────────────────────────────────────────────────────
     function exportPage() {
       clearPending();
+      const original = document.title;
+      document.title = "Figurinhas Gustavo e Gabriel";
       window.print();
+      setTimeout(() => { document.title = original; }, 1000);
     }
 
     // ── TOAST ────────────────────────────────────────────────────────────────────
