@@ -205,26 +205,27 @@
       .controls { display: none !important; }
       #toast, .modal-overlay, .confirm-bar { display: none !important; }
 
-      main { padding: 0.3rem 0.4rem 0 !important; }
+      main { padding: 0.2rem 0.3rem 0 !important; max-width: 100% !important; }
 
       /* Duas colunas */
       .country-list {
         box-shadow: none !important;
-        border: 1px solid #e2e8f0 !important;
         border-radius: 0 !important;
-        columns: 2;
-        column-gap: 0;
-        display: block !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 0.8rem;
+        border: none !important;
       }
 
       .country-row {
         break-inside: avoid;
-        padding: 0.15rem 0.45rem !important;
-        min-height: 1.2rem !important;
-        border-bottom: 1px solid #f1f5f9 !important;
+        padding: 0.13rem 0.3rem !important;
+        min-height: 1.1rem !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        border-radius: 0 !important;
       }
-      .row-code { font-size: 0.56rem !important; width: 1.9rem !important; padding-top: 0.15rem !important; }
-      .row-chips { gap: 0.12rem !important; }
+      .row-code { font-size: 0.54rem !important; width: 1.8rem !important; padding-top: 0.12rem !important; }
+      .row-chips { gap: 0.1rem !important; }
 
       .chip.found { display: none !important; }
       .chip.pending { background: #bfdbfe !important; color: #1d4ed8 !important; box-shadow: none !important; }
